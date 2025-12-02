@@ -1,9 +1,0 @@
-# Generated site folder
-site/
-
-# Python cache files (used by GitHub Action)
-*.pyc
-__pycache__/
-
-# Optional: environment or config files you don’t want tracked
-.env
