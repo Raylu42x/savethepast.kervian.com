@@ -2,148 +2,84 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Page In Progress</title>
-
+  <title>Save The Past - Prototype</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 2rem;
-      background: #fafafa;
-      color: #333;
+      margin: 1rem;
+      line-height: 1.6;
+    }
+    h1, h2, h3 {
+      color: #222;
+    }
+    .top-links {
+      margin-top: 2rem;
       text-align: center;
     }
-
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    p {
-      font-size: 1.1rem;
-      max-width: 600px;
-      margin: 0 auto 2rem auto;
-    }
-
-    .status-box {
-      display: inline-block;
-      padding: 1rem 1.5rem;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-      background: white;
-      margin-bottom: 2rem;
+    .top-links a {
+      text-decoration: none;
+      color: #0077cc;
       font-weight: bold;
+      margin: 0 0.5rem;
     }
-
-    .spinner {
-      margin: 1.5rem auto;
-      width: 40px;
-      height: 40px;
-      border: 4px solid #ddd;
-      border-top-color: #888;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    footer {
-      margin-top: 4rem;
+    .top-links a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
-
 <body>
 
-  <h1>Page Under Construction</h1>
+<h1>Our Prototype</h1>
 
-  <div class="status-box">This section is still being written.</div>
+<h2>What It Does</h2>
+<p>Our prototype automatically transfers files from <strong>any USB device</strong> to the cloud. All you need to do is:</p>
+<ol>
+  <li>Plug in a drive</li>
+  <li>Wait</li>
+  <li>Unplug the drive</li>
+</ol>
+<p>Once finished, the files are securely stored in your chosen cloud provider. This allows archaeologists and researchers to preserve valuable records from old storage media without manual effort.</p>
 
-  <div class="spinner"></div>
+<h3>Key Features:</h3>
+<ul>
+  <li>Fully automated — no human input required</li>
+  <li>Low cost — under $30 to build</li>
+  <li>Adds a <code>.notes.txt</code> file with the drive structure and file tree</li>
+  <li>Compatible with over 70 cloud storage providers</li>
+  <li>Works with any storage device, provided you have the right adapter</li>
+</ul>
 
-  <p>
-    We’re actively working on this page and will publish the full content soon.
-    Check back later for updates.
-  </p>
+<h3>How It Works Behind the Scenes:</h3>
+<ol>
+  <li>Uses <code>udev</code> rules to detect when a drive is plugged in</li>
+  <li>Transfers files to cloud if internet is available; if not, saves locally until reconnected</li>
+  <li>Generates a <code>.notes.txt</code> file documenting the drive’s file structure</li>
+  <li>Ensures all files are uploaded to the cloud once connectivity is restored</li>
+  <li>Handles multiple drives sequentially and avoids overwriting existing files</li>
+</ol>
 
-  <!-- Bottom nav bar -->
-  <footer class="bottom-nav">
-    <a href="https://savethepast.kervian.com/" class="nav-link">Home</a>
-    <a href="https://savethepast.kervian.com/process" class="nav-link">Process</a>
-    <a href="https://savethepast.kervian.com/prototype" class="nav-link">Prototype</a>
-  </footer>
+<h3>Technical Notes:</h3>
+<ul>
+  <li>Written in Python and Bash scripts running on a Raspberry Pi</li>
+  <li>Monitors connected drives in real time</li>
+  <li>Compatible with FAT32, NTFS, and exFAT file systems</li>
+  <li>Logs all activity to a local log file for troubleshooting</li>
+</ul>
 
-  <style>
-    .bottom-nav {
-      width: 100%;
-      margin-top: 2rem;
-      padding: 1rem 0;
-      background: #f5f5f5;
-      border-top: 1px solid #ddd;
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      font-family: Arial, sans-serif;
-    }
+<h3>Why It Matters:</h3>
+<p>Many historical and archaeological records exist on <strong>old media that are failing</strong>. Our prototype ensures that this data can be <strong>rescued and preserved digitally</strong>, reducing the risk of permanent loss. By automating the process, we save time and reduce human error.</p>
 
-    .bottom-nav .nav-link {
-      text-decoration: none;
-      color: #444;
-      font-weight: 600;
-    }
+<h2>What You Need to Make It</h2>
+<p>You can find all materials and instructions <a href="savethepast.kervian.com/setup">here</a>. </p>
 
-    .bottom-nav .nav-link:hover {
-      text-decoration: underline;
-    }
 
-    @media (max-width: 600px) {
-      .bottom-nav {
-        flex-direction: column;
-        gap: 0.75rem;
-        text-align: center;
-      }
-    }
-  </style>
-<footer class="bottom-nav">
-  <a href="https://savethepast.kervian.com/" class="nav-link">Home</a>
-  <a href="https://savethepast.kervian.com/process" class="nav-link">Process</a>
-  <a href="https://savethepast.kervian.com/prototype" class="nav-link">Prototype</a>
-</footer>
-
-<style>
-  .bottom-nav {
-    width: 100%;
-    margin-top: 2rem;
-    padding: 1rem 0;
-    background: #f5f5f5;
-    border-top: 1px solid #ddd;
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    font-family: Arial, sans-serif;
-  }
-
-  .bottom-nav .nav-link {
-    text-decoration: none;
-    color: #444;
-    font-weight: 600;
-  }
-
-  .bottom-nav .nav-link:hover {
-    text-decoration: underline;
-  }
-
-  /* Makes spacing nicer on small screens */
-  @media (max-width: 600px) {
-    .bottom-nav {
-      flex-direction: column;
-      gap: 0.75rem;
-      text-align: center;
-    }
-  }
-</style>
+<!-- Matching bottom nav -->
+<div class="top-links" style="margin-top: 2rem; text-align: center;">
+  <a href="index.html">Home</a> |
+  <a href="process.html">Process</a> |
+  <a href="prototype.html">Prototype</a> |
+  <a href="team.html">Team</a>
+</div>
 
 </body>
+</html>
