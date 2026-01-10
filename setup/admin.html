@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AutoCopy / AutoUpload System — Operator Guide</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --code: #0f172a;
+      --border: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+    }
+    h1, h2, h3 { line-height: 1.25; }
+    h1 { font-size: 2rem; margin-top: 0; }
+    h2 { font-size: 1.4rem; margin-top: 2rem; }
+    h3 { font-size: 1.1rem; margin-top: 1.2rem; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+      border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin: 16px 0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+    .badge {
+      display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; margin-right: 6px;
+      background: #064e3b; color: #bbf7d0; border: 1px solid #065f46;
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .muted { color: var(--muted); }
+    .ok { color: var(--accent); }
+    .warn { color: var(--warn); }
+    .danger { color: var(--danger); }
+    pre, code {
+      background: var(--code); color: #e5e7eb; border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    pre { padding: 14px; overflow: auto; }
+    code { padding: 2px 6px; }
+    ul { padding-left: 18px; }
+    .toc a { display: block; padding: 4px 0; }
+    footer { margin-top: 40px; padding-top: 16px; border-top: 1px dashed var(--border); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="card">
+      <span class="badge">AutoCopy</span>
+      <span class="badge">AutoUpload</span>
+      <h1>Operator Guide</h1>
+      <p class="muted">A complete, hand-off ready guide to operate the automatic drive ingestion and OneDrive upload system.</p>
+    </header>
+
+    <nav class="card toc">
+      <h2>Contents</h2>
+      <a href="#overview">Overview</a>
+      <a href="#layout">Directory Layout</a>
+      <a href="#services">Services</a>
+      <a href="#flow">What Happens When You Insert a Drive</a>
+      <a href="#commands">Important Commands</a>
+      <a href="#status">Status Page</a>
+      <a href="#filesystems">Filesystem & Media Support</a>
+      <a href="#safety">Safety Rules</a>
+      <a href="#rclone">rclone Notes</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+      <a href="#nano">Nano Cheatsheet</a>
+    </nav>
+
+    <section id="overview" class="card">
+      <h2>Overview</h2>
+      <p>This system automatically detects removable media (USB, HDD, SSD, floppy), mounts it safely, creates a <code>.notes.txt</code> file, uploads the contents to OneDrive using <code>rclone</code>, and exposes a local status webpage.</p>
+    </section>
+
+    <section id="layout" class="card">
+      <h2>Directory Layout</h2>
+      <pre><code>/opt/autoupload/
+├── scripts/
+│   └── handle_drive.sh     # Main drive handler (udev-triggered)
+├── logs/
+│   └── current.log         # Rolling log file
+├── state/
+│   ├── *.json              # Per-drive state for web UI
+│   ├── *.done              # Marks drives as processed
+│   └── *.uploaded          # Marks uploads as completed
+├── webapp/
+│   ├── status.py           # Flask status server
+│   └── templates/
+│       └── status.html     # Web UI template
+
+/mnt/autoupload/&lt;UUID&gt;/      # Mount points</code></pre>
+    </section>
+
+    <section id="services" class="card">
+      <h2>Services</h2>
+      <ul>
+        <li><strong>Drive handler</strong>: Triggered automatically by udev on device insert.</li>
+        <li><strong>Status page</strong>: Flask app running as a systemd service.</li>
+      </ul>
+      <p>Access the status page at:</p>
+      <pre><code>http://&lt;device-ip&gt;:1111</code></pre>
+    </section>
+
+    <section id="flow" class="card">
+      <h2>What Happens When You Insert a Drive</h2>
+      <ol>
+        <li>Device detected</li>
+        <li>System disk ignored</li>
+        <li>Filesystem identified (FAT12/FAT32/exFAT/NTFS/ext4)</li>
+        <li>Mounted safely (FAT12 read-only)</li>
+        <li><code>.notes.txt</code> created</li>
+        <li>Upload to OneDrive via rclone</li>
+        <li>Status + logs updated</li>
+      </ol>
+    </section>
+
+    <section id="commands" class="card">
+      <h2>Important Commands</h2>
+      <div class="grid">
+        <div>
+          <h3>View live logs</h3>
+          <pre><code>tail -f /opt/autoupload/logs/current.log</code></pre>
+        </div>
+        <div>
+          <h3>View processed drives</h3>
+          <pre><code>ls /opt/autoupload/state</code></pre>
+        </div>
+        <div>
+          <h3>Reset processed state</h3>
+          <pre><code>sudo rm -f /opt/autoupload/state/*.done \
+  /opt/autoupload/state/*.uploaded \
+  /opt/autoupload/state/*.json</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="status" class="card">
+      <h2>Status Page</h2>
+      <ul>
+        <li>Shows last <strong>5</strong> drives</li>
+        <li>Resets after reboot</li>
+        <li>Displays live log tail</li>
+      </ul>
+      <pre><code>sudo systemctl status autoupload-status.service
+sudo systemctl restart autoupload-status.service
+journalctl -u autoupload-status.service -f</code></pre>
+    </section>
+
+    <section id="filesystems" class="card">
+      <h2>Filesystem & Media Support</h2>
+      <ul>
+        <li>FAT12 (floppies) — read-only</li>
+        <li>FAT32</li>
+        <li>exFAT</li>
+        <li>NTFS</li>
+        <li>ext4</li>
+      </ul>
+      <p class="muted">Minimum size supported: 1MB</p>
+    </section>
+
+    <section id="safety" class="card">
+      <h2>Safety Rules</h2>
+      <ul>
+        <li class="ok">✔ System disk is never touched</li>
+        <li class="ok">✔ Boot partitions ignored</li>
+        <li class="ok">✔ FAT12 mounted read-only</li>
+        <li class="ok">✔ No deletes on source drives</li>
+      </ul>
+    </section>
+
+    <section id="rclone" class="card">
+      <h2>rclone Notes</h2>
+      <pre><code>/home/pi/.config/rclone/rclone.conf</code></pre>
+      <pre><code>rclone lsd onedrive:
+rclone copy /mnt/autoupload/&lt;UUID&gt; onedrive:test --dry-run</code></pre>
+    </section>
+
+    <section id="troubleshooting" class="card">
+      <h2>Troubleshooting</h2>
+      <ul>
+        <li><strong>Drive not detected:</strong> <code>lsblk</code> + check logs</li>
+        <li><strong>Upload failed:</strong> Check internet, reinsert drive, or reset state</li>
+        <li><strong>Status page blank:</strong> Restart service</li>
+      </ul>
+    </section>
+
+    <section id="nano" class="card">
+      <h2>Nano Cheatsheet</h2>
+      <pre><code>nano /opt/autoupload/scripts/handle_drive.sh
+CTRL + O  → Save
+CTRL + X  → Exit
+CTRL + ^  → Mark
+ALT  + 6  → Copy
+CTRL + U  → Paste</code></pre>
+    </section>
+
+    <footer class="muted">
+      <p>AutoCopy / AutoUpload — robust, offline-tolerant, and safe for legacy media.</p>
+    </footer>
+  </div>
+</body>
+</html>
